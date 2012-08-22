@@ -20,23 +20,16 @@ class TagCloud extends CPortlet{
 	public $transparent = true;
 	//标签字体大小
 	public $fontSize = 20;
-
+	//标题
 	public $title = '标签云';
 	//标签的字段名称
 	public $name = 'name';
 	//标签的url连接地址
 	public $url = 'url';
+	//标签url连接是否新建页
+	public $target = 'target';
 	//标签数组
-	public $tags = array(
-				array('name'=>'复仇者联盟1','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟2','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟3','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟4','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟5','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟1','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟1','url'=>'www.yahoo.com','target'=>true),
-				array('name'=>'复仇者联盟1','url'=>'www.yahoo.com','target'=>true),
-				);
+	public $tags;
 
 	protected $assets;
 
@@ -52,31 +45,46 @@ class TagCloud extends CPortlet{
 	
 		
 	protected function renderContent(){
-
 		echo '<div id="animateTagCloud">if you can see this ,it means there are some errors.</div>';
+		//判断tags数组是否为空
+		if(!empty($this->tags)){
+			$jstags = $this->getTags($this->tags);
+			$jsScripts = 'var so = new SWFObject("'.$this->assets.'/tagcloud.swf","tagcloud","'.$this->width.'","'.$this->height.'","7","'.$this->bgcolor.'");';
+			if($this->transparent){
+				$jsScripts .= 'so.addParam("wmode","transparent");';
+			} 
+			$jsScripts .= 'so.addVariable("mode","tags");';
+			$jsScripts .= 'so.addVariable("distr", '.$this->distr.');';
+			$jsScripts .= 'so.addVariable("tcolor","'.$this->tcolor.'");';
+			$jsScripts .= 'so.addVariable("hicolor","'.$this->hicolor.'");';
+			$jsScripts .= 'so.addVariable("tspeed","'.$this->tspeed.'");';
+			$jsScripts .= 'so.addVariable("tagcloud","'.$jstags.'");';
+			$jsScripts .= 'so.write("animateTagCloud");';
 
-		$jstags = $this->getTags($this->tags);
-		$jsScripts = 'var so = new SWFObject("'.$this->assets.'/tagcloud.swf","tagcloud","'.$this->width.'","'.$this->height.'","7","'.$this->bgcolor.'");';
-		if($this->transparent){
-			$jsScripts .= 'so.addParam("wmode","transparent");';
-		} 
-		$jsScripts .= 'so.addVariable("mode","tags");';
-		$jsScripts .= 'so.addVariable("distr", '.$this->distr.');';
-		$jsScripts .= 'so.addVariable("tcolor","'.$this->tcolor.'");';
-		$jsScripts .= 'so.addVariable("hicolor","'.$this->hicolor.'");';
-		$jsScripts .= 'so.addVariable("tspeed","'.$this->tspeed.'");';
-		$jsScripts .= 'so.addVariable("tagcloud","'.$jstags.'");';
-		$jsScripts .= 'so.write("animateTagCloud");';
-
-		Yii::app()->clientScript->registerScript('tagcloud',$jsScripts);
-		
+			Yii::app()->clientScript->registerScript('tagcloud',$jsScripts);
+		}
 	}
 
 	private function getTags($tags){
 		$tagscript = '<tags>';
+		$name = '未设置';
+		$url = '';
+		$target = '';
 		foreach($tags as $tag){
-				$tagscript .= "<a href='http://".$tag[$this->url]."' style='$this->fontSize' >".$tag[$this->name]."</a>";
+			//获取target
+			if(isset($tag[$this->target])){
+				$target = $tag[$this->target] ? '_blank': '';
 			}
+			//获取标签名
+			if(isset($tag[$this->name])){
+				$name = $tag[$this->name];
+			}
+			//获取标签地址
+			if(isset($tag[$this->url])){
+				$url = $tag[$this->url];
+			}
+			$tagscript .= "<a href='http://".$url."' style='".$this->fontSize."' target='".$target."'>".$name."</a>";
+		}
 		$tagscript .= '</tags>';
 		return urlencode($tagscript);
 	}
