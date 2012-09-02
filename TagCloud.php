@@ -1,7 +1,6 @@
 <?php
 Yii::import('zii.widgets.CPortlet');
 class TagCloud extends CPortlet{
-
 	//控件宽度
 	public $width = '152';
 	//控件高度
@@ -31,8 +30,8 @@ class TagCloud extends CPortlet{
 	//标签数组
 	public $tags;
 
+    //assets文件
 	protected $assets;
-
 
 	public function init(){
 		parent::init();
@@ -42,7 +41,6 @@ class TagCloud extends CPortlet{
 		$cs = Yii::app()->clientScript;
 		$cs->registerScriptFile($this->assets.'/swfobject.js');
 	}
-	
 		
 	protected function renderContent(){
 		echo '<div id="animateTagCloud">if you can see this ,it means there are some errors.</div>';
@@ -86,6 +84,7 @@ class TagCloud extends CPortlet{
 			$tagscript .= "<a href='http://".$url."' style='".$this->fontSize."' target='".$target."'>".$name."</a>";
 		}
 		$tagscript .= '</tags>';
+        //urlencode
 		return urlencode($tagscript);
 	}
 }
